@@ -368,6 +368,8 @@ function display(data) {
   // create a new plot and
   // display it
   var plot = scrollVis();
+  //This calls the chart() method in the scrollVis()
+  //Chart function contains the main rendering functions
   d3.select("#vis").datum(data).call(plot);
 
   // setup scroll functionality
@@ -377,6 +379,7 @@ function display(data) {
   scroll(d3.selectAll(".step"));
 
   // setup event handling
+  //This does not need any update
   scroll.on("active", function (index) {
     // highlight current step text
     d3.selectAll(".step").style("opacity", function (d, i) {
