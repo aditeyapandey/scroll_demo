@@ -93,15 +93,6 @@ var scrollVis = function () {
         .select("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      // // perform some preprocessing on raw data
-      // var wordData = getWords(rawData);
-      // // filter to just include filler words
-      // var fillerWords = getFillerWords(wordData);
-
-      // // get the counts of filler words for the
-      // // bar chart display
-      // var fillerCounts = groupByWord(fillerWords);
-      // set the bar scale's domain
       var countMax = d3.max(rawData, function (d) {
         return d.score;
       });
@@ -118,11 +109,11 @@ var scrollVis = function () {
    * sections of the visualization.
    *
    * @param wordData - data object for each word.
-   * @param fillerCounts - nested data that includes
+   * @param inputData - nested data that includes
    *  element for each filler word type.
    * @param histData - binned histogram data
    */
-  var setupVis = function (fillerCounts) {
+  var setupVis = function (inputData) {
     // axis
     g.append("g")
       .attr("class", "x axis")
@@ -164,7 +155,7 @@ var scrollVis = function () {
     // @v4 Using .merge here to ensure
     // new and old data have same attrs applied
     //CHANGE REQUIRED
-    var bars = g.selectAll(".bar").data(fillerCounts);
+    var bars = g.selectAll(".bar").data(inputData);
     var barsE = bars.enter().append("rect").attr("class", "bar");
 
     bars = bars
@@ -182,7 +173,7 @@ var scrollVis = function () {
       .attr("width", 0)
       .attr("height", yBarScale.bandwidth());
 
-    var barText = g.selectAll(".bar-text").data(fillerCounts);
+    var barText = g.selectAll(".bar-text").data(inputData);
     barText
       .enter()
       .append("text")
@@ -335,82 +326,6 @@ var scrollVis = function () {
     g.select(".x.axis").transition().duration(500).style("opacity", 0);
   }
 
-  /**
-   * UPDATE FUNCTIONS
-   *
-   * These will be called within a section
-   * as the user scrolls through it.
-   *
-   * We use an immediate transition to
-   * update visual elements based on
-   * how far the user has scrolled
-   *
-   */
-
-  /**
-   * getWords - maps raw data to
-   * array of data objects. There is
-   * one data object for each word in the speach
-   * data.
-   *
-   * This function converts some attributes into
-   * numbers and adds attributes used in the visualization
-   *
-   * @param rawData - data read in from file
-   */
-  function getWords(rawData) {
-    return rawData.map(function (d, i) {
-      // is this word a filler word?
-      d.filler = d.filler === "1" ? true : false;
-      // time in seconds word was spoken
-      d.time = +d.time;
-      // time in minutes word was spoken
-      d.min = Math.floor(d.time / 60);
-
-      // positioning for square visual
-      // stored here to make it easier
-      // to keep track of.
-      d.col = i % numPerRow;
-      d.x = d.col * (squareSize + squarePad);
-      d.row = Math.floor(i / numPerRow);
-      d.y = d.row * (squareSize + squarePad);
-      return d;
-    });
-  }
-
-  /**
-   * getFillerWords - returns array of
-   * only filler words
-   *
-   * @param data - word data from getWords
-   */
-  function getFillerWords(data) {
-    return data.filter(function (d) {
-      return d.filler;
-    });
-  }
-
-  /**
-   * groupByWord - group words together
-   * using nest. Used to get counts for
-   * barcharts.
-   *
-   * @param words
-   */
-  function groupByWord(words) {
-    return d3
-      .nest()
-      .key(function (d) {
-        return d.word;
-      })
-      .rollup(function (v) {
-        return v.length;
-      })
-      .entries(words)
-      .sort(function (a, b) {
-        return b.value - a.value;
-      });
-  }
 
   /**
    * activate -
